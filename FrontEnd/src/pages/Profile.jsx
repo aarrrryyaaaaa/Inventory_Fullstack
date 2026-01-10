@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { User, Save, Lock } from 'lucide-react';
@@ -7,46 +6,13 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const Profile = () => {
+    // ... rest of state
     const { user, login } = useAuth(); // re-login logic to update local user state if needed
     const { t } = useLanguage();
 
-    // Form State
-    const [formData, setFormData] = useState({
-        full_name: '',
-        username: '',
-        age: '',
-        address: '',
-        first_name: '',
-        last_name: ''
-    });
-    const [passwordData, setPasswordData] = useState({
-        newPassword: '',
-        confirmPassword: ''
-    });
-
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        // Pre-fill form with current user data from AuthContext (or fetch fresh)
-        if (user) {
-            setFormData({
-                full_name: user.full_name || '',
-                username: user.username || '',
-                age: user.age || '',
-                address: user.address || '',
-                first_name: user.first_name || '',
-                last_name: user.last_name || ''
-            });
-        }
-        fetchProfile(); // Fetch fresh data to be sure
-    }, [user]);
-
     const fetchProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/auth/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.get('/auth/profile');
             setFormData(prev => ({ ...prev, ...response.data }));
         } catch (error) {
             console.error("Error fetching profile", error);
@@ -65,10 +31,7 @@ const Profile = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.patch('http://localhost:5000/api/auth/profile', formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.patch('/auth/profile', formData);
             alert('Profile updated successfully!');
             // Ideally update Global Auth Context here with new data
             // For now, we rely on page refresh or simple re-fetch, but let's try to update context if possible
@@ -91,11 +54,8 @@ const Profile = () => {
             return;
         }
         try {
-            const token = localStorage.getItem('token');
-            await axios.put('http://localhost:5000/api/auth/change-password', {
+            await api.put('/auth/change-password', {
                 newPassword: passwordData.newPassword
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
             });
             alert('Password changed successfully!');
             setPasswordData({ newPassword: '', confirmPassword: '' });

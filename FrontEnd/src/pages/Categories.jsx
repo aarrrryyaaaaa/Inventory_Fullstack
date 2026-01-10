@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import axios from 'axios';
+import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ChevronLeft, Box, Calendar, User, Tag } from 'lucide-react';
@@ -20,9 +20,7 @@ const Categories = () => {
 
     const fetchCats = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/inventory/categories', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/inventory/categories');
             setCategories(res.data);
         } catch (err) {
             console.error(err);
@@ -34,8 +32,8 @@ const Categories = () => {
         setLoadingProducts(true);
         try {
             // Fetch products for this category (limit 100 for detail view)
-            const res = await axios.get(`http://localhost:5000/api/inventory?category=${catName}&limit=100`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const res = await api.get(`/inventory`, {
+                params: { category: catName, limit: 100 }
             });
             setProducts(res.data.data);
         } catch (err) {

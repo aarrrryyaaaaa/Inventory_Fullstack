@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import axios from 'axios';
+import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -15,10 +15,9 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const config = { headers: { Authorization: `Bearer ${token}` } };
                 const [statsRes, catsRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/dashboard/stats', config),
-                    axios.get('http://localhost:5000/api/inventory/categories', config)
+                    api.get('/dashboard/stats'),
+                    api.get('/inventory/categories')
                 ]);
                 setStats(statsRes.data);
                 setCategories(catsRes.data);

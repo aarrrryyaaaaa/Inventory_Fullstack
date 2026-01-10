@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { Search, User, Shield, MapPin } from 'lucide-react';
@@ -8,6 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
+    // ... rest of state
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -29,10 +29,7 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5000/api/auth/all?search=${searchTerm}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await api.get(`/auth/all?search=${searchTerm}`);
             setUsers(response.data.data);
         } catch (error) {
             console.error("Error fetching users:", error);

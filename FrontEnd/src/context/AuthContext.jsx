@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api, { setAuthToken } from '../api/api';
 
 const AuthContext = createContext();
 
@@ -13,17 +13,17 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setAuthToken(token);
             fetchProfile();
         } else {
-            delete axios.defaults.headers.common['Authorization'];
+            setAuthToken(null);
             setLoading(false);
         }
     }, [token]);
 
     const fetchProfile = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/auth/profile');
+            const res = await api.get('/auth/profile');
             setUser(res.data);
         } catch (err) {
             console.error(err);

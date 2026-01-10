@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { Plus, Trash2, Edit2, Search, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
-import axios from 'axios';
+import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const Inventory = () => {
+    // ... rest of component
     const { t } = useLanguage();
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -33,9 +34,7 @@ const Inventory = () => {
 
     const fetchCategories = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/inventory/categories', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/inventory/categories');
             setCategories(res.data);
         } catch (err) {
             console.error(err);
@@ -44,8 +43,7 @@ const Inventory = () => {
 
     const fetchItems = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/inventory', {
-                headers: { Authorization: `Bearer ${token}` },
+            const res = await api.get('/inventory', {
                 params: {
                     search: searchQuery,
                     category: selectedCategory,
@@ -77,9 +75,7 @@ const Inventory = () => {
     const handleDelete = async (id) => {
         if (!confirm('Are you sure?')) return;
         try {
-            await axios.delete(`http://localhost:5000/api/inventory/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/inventory/${id}`);
             fetchItems();
         } catch (err) {
             alert('Delete failed: ' + (err.response?.data?.message || err.message));
@@ -89,11 +85,10 @@ const Inventory = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const config = { headers: { Authorization: `Bearer ${token}` } };
             if (editingId) {
-                await axios.put(`http://localhost:5000/api/inventory/${editingId}`, formData, config);
+                await api.put(`/inventory/${editingId}`, formData);
             } else {
-                await axios.post('http://localhost:5000/api/inventory', formData, config);
+                await api.post('/inventory', formData);
             }
             setShowModal(false);
             setFormData({ name: '', category: '', quantity: 0, location: '' });
@@ -109,9 +104,7 @@ const Inventory = () => {
     const handleTxnSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/api/transactions', txnData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post('/transactions', txnData);
             setShowTxnModal(false);
             setTxnData({ product_id: '', type: 'IN', quantity: 0 });
             alert('Transaction successful!');
