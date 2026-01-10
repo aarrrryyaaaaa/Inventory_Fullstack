@@ -22,7 +22,8 @@ app.get('/', (req, res) => {
     res.send('Inventory API is running...');
 });
 
-if (process.env.NODE_ENV !== 'production') {
+// Start server only if this file is run directly (not required as a module)
+if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
