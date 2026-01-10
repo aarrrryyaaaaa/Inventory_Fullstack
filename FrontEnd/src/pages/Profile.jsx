@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import api from '../api/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -6,9 +7,39 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const Profile = () => {
-    // ... rest of state
-    const { user, login } = useAuth(); // re-login logic to update local user state if needed
+    const { user } = useAuth();
     const { t } = useLanguage();
+
+    // Form State
+    const [formData, setFormData] = useState({
+        full_name: '',
+        username: '',
+        age: '',
+        address: '',
+        first_name: '',
+        last_name: ''
+    });
+    const [passwordData, setPasswordData] = useState({
+        newPassword: '',
+        confirmPassword: ''
+    });
+
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        // Pre-fill form with current user data from AuthContext (or fetch fresh)
+        if (user) {
+            setFormData({
+                full_name: user.full_name || '',
+                username: user.username || '',
+                age: user.age || '',
+                address: user.address || '',
+                first_name: user.first_name || '',
+                last_name: user.last_name || ''
+            });
+        }
+        fetchProfile(); // Fetch fresh data to be sure
+    }, [user]);
 
     const fetchProfile = async () => {
         try {

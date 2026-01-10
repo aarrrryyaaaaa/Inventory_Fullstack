@@ -3,7 +3,7 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import api from '../api/api';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend, AreaChart, Area
@@ -19,12 +19,10 @@ const Reports = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!token) return;
             try {
-                const config = { headers: { Authorization: `Bearer ${token}` } };
                 const [statsRes, catsRes] = await Promise.all([
-                    axios.get('http://localhost:5000/api/dashboard/stats', config),
-                    axios.get('http://localhost:5000/api/inventory/categories', config)
+                    api.get('/dashboard/stats'),
+                    api.get('/inventory/categories')
                 ]);
                 setStats(statsRes.data);
                 setCategories(catsRes.data);
@@ -35,7 +33,7 @@ const Reports = () => {
             }
         };
         fetchData();
-    }, [token]);
+    }, []);
 
     // Prepare data for Donut Chart (Category Distribution)
     const pieData = Array.isArray(categories) ? categories.map(cat => ({

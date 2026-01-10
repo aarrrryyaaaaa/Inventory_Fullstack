@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import api from '../api/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -7,7 +8,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
-    // ... rest of state
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
