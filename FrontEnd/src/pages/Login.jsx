@@ -44,12 +44,13 @@ const Login = () => {
             <div className="flex min-h-screen bg-white transition-colors">
                 {/* Left Side - Full Half-Screen Spline */}
                 <div className="hidden lg:flex lg:w-1/2 bg-[#000000] flex-col justify-start items-center relative overflow-hidden transition-colors">
-                    <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 z-0 bg-slate-900 flex items-center justify-center">
                         <iframe
                             src='https://my.spline.design/100followersfocus-sFBe8s2vssVBJlpaficPlaOp/'
                             frameBorder='0'
-                            className="absolute w-[140%] h-[140%] -left-[20%] -top-[20%] pointer-events-auto"
+                            className="absolute w-[140%] h-[140%] -left-[20%] -top-[20%] pointer-events-auto opacity-100"
                             title="Interactive 3D Scene"
+                            allow="autoplay; fullscreen; vr"
                         ></iframe>
                     </div>
 

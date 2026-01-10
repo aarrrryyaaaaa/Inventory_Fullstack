@@ -178,4 +178,27 @@ router.get('/all', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
+// ADMIN: DELETE USER
+router.delete('/users/:id', verifyToken, checkRole('admin'), async (req, res) => {
+    const { id } = req.params;
+
+    // Prevent self-deletion
+    if (id === req.userId) {
+        return res.status(400).json({ message: "You cannot delete your own admin account." });
+    }
+
+    try {
+        const { error } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        res.json({ message: 'User deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
+

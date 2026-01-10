@@ -5,6 +5,7 @@ import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Package, Box, Sparkles, TrendingUp } from 'lucide-react';
 import Loading from '../components/Loading';
 
 const Dashboard = () => {
@@ -53,8 +54,7 @@ const Dashboard = () => {
     const activityList = Array.isArray(stats.recentActivity) ? stats.recentActivity : [];
     const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4'];
 
-    // Data fetching handled in useEffect
-
+    if (loading) return <Loading />;
 
     return (
         <div className="bg-gray-50 min-h-screen transition-colors">
@@ -62,17 +62,38 @@ const Dashboard = () => {
             <Header title={`${t('dashboard')} • ATS Corp`} />
 
             <main className="pl-64 pt-20 p-8">
-                <div className="bg-indigo-600 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl mb-8">
-                    <div className="relative z-10 max-w-2xl">
-                        <h1 className="text-3xl font-bold mb-2">{t('welcome')}</h1>
-                        <h2 className="text-4xl font-extrabold mb-6 text-white uppercase">
+                {/* High-Impact 3D People Banner */}
+                <div className="bg-slate-900 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl mb-10 min-h-[380px] flex items-center border border-white/5">
+                    <div className="relative z-20 max-w-2xl bg-black/30 backdrop-blur-xl p-10 rounded-[2rem] border border-white/10 shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                            <h1 className="text-2xl font-black tracking-widest text-cyan-400 uppercase opacity-80">{t('welcome')}</h1>
+                        </div>
+                        <h2 className="text-6xl font-black mb-6 text-white uppercase tracking-tighter leading-none drop-shadow-2xl">
                             {user?.full_name || 'User'}
                         </h2>
-                        <p className="text-blue-100 mb-8 leading-relaxed">
+                        <p className="text-slate-300 mb-0 leading-relaxed font-bold text-lg max-w-md">
                             {t('welcome_message')}
                         </p>
                     </div>
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+
+                    {/* Interactive 3D Spline Scene - People Focus */}
+                    <div className="absolute inset-0 z-10 pointer-events-none">
+                        <iframe
+                            src='https://my.spline.design/100followersfocus-sFBe8s2vssVBJlpaficPlaOp/'
+                            frameBorder='0'
+                            className="absolute w-[150%] h-[150%] -right-[25%] -top-[25%] opacity-100"
+                            title="Interactive 3D People"
+                            allow="autoplay; fullscreen; vr"
+                        ></iframe>
+                    </div>
+
+                    {/* Sophisticated Gradient Masking */}
+                    <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent z-15 pointer-events-none"></div>
+
+                    {/* Atmospheric Glows */}
+                    <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] animate-pulse"></div>
+                    <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

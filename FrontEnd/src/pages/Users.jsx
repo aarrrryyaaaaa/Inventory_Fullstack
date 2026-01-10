@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { Search } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +35,17 @@ const Users = () => {
             console.error("Error fetching users:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteUser = async (id) => {
+        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+        try {
+            await api.delete(`/auth/users/${id}`);
+            alert('User deleted successfully');
+            fetchUsers();
+        } catch (error) {
+            alert('Delete failed: ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -72,6 +83,7 @@ const Users = () => {
                                     <th className="pb-3 px-4">Role</th>
                                     <th className="pb-3 px-4">Age</th>
                                     <th className="pb-3 px-4">Address</th>
+                                    {user?.role === 'admin' && <th className="pb-3 px-4 text-right">Actions</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -92,11 +104,26 @@ const Users = () => {
                                         </td>
                                         <td className="py-4 px-4 text-gray-600">{u.age || '-'}</td>
                                         <td className="py-4 px-4 text-gray-600 max-w-[200px] truncate">{u.address || '-'}</td>
+                                        {user?.role === 'admin' && (
+                                            <td className="py-4 px-4 text-right">
+                                                {u.id !== user.id ? (
+                                                    <button
+                                                        onClick={() => handleDeleteUser(u.id)}
+                                                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all group-hover:opacity-100"
+                                                        title="Delete User account"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-gray-300 uppercase italic">You</span>
+                                                )}
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                                 {users.length === 0 && !loading && (
                                     <tr>
-                                        <td colSpan="5" className="text-center py-8 text-gray-500">No users found.</td>
+                                        <td colSpan={user?.role === 'admin' ? "6" : "5"} className="text-center py-8 text-gray-500">No users found.</td>
                                     </tr>
                                 )}
                             </tbody>
