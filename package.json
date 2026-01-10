@@ -1,0 +1,8 @@
+{
+    "name": "inventory-system-monorepo",
+    "version": "1.0.0",
+    "scripts": {
+        "build": "cd FrontEnd && npm install && npm run build",
+        "install-backend": "cd BackEnd && npm install"
+    }
+}
