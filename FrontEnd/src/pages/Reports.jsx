@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
+import Loading from '../components/Loading';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend, AreaChart, Area
@@ -49,13 +50,8 @@ const Reports = () => {
         qty: act.quantity
     })) : [];
 
-    if (loading) {
-        return (
-            <div className="bg-slate-50 min-h-screen flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
+    // Data fetching handled in useEffect
+
 
     return (
         <div className="bg-slate-50 min-h-screen transition-colors font-sans">

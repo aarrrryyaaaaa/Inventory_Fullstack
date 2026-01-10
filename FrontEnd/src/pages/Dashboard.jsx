@@ -5,31 +5,56 @@ import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import Loading from '../components/Loading';
 
 const Dashboard = () => {
     const { user, token } = useAuth();
     const { t } = useLanguage();
     const [stats, setStats] = useState({ totalItems: 0, lowStock: 0, recentActivity: [] });
     const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [note, setNote] = useState('Loading notes...');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editValue, setEditValue] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsRes, catsRes] = await Promise.all([
+                const [statsRes, catsRes, noteRes] = await Promise.all([
                     api.get('/dashboard/stats'),
-                    api.get('/inventory/categories')
+                    api.get('/inventory/categories'),
+                    api.get('/settings/note')
                 ]);
                 setStats(statsRes.data);
                 setCategories(catsRes.data);
+                setNote(noteRes.data.value);
+                setEditValue(noteRes.data.value);
             } catch (err) {
                 console.error(err);
+            } finally {
+                setLoading(false);
             }
         };
         if (token) fetchData();
+        else setLoading(false);
     }, [token]);
+
+    const handleSaveNote = async () => {
+        try {
+            await api.patch('/settings/note', { value: editValue });
+            setNote(editValue);
+            setIsEditing(false);
+        } catch (err) {
+            alert('Failed to save note');
+        }
+    };
+
 
     const activityList = Array.isArray(stats.recentActivity) ? stats.recentActivity : [];
     const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4'];
+
+    // Data fetching handled in useEffect
+
 
     return (
         <div className="bg-gray-50 min-h-screen transition-colors">
@@ -119,11 +144,53 @@ const Dashboard = () => {
                             </div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 text-white shadow-xl">
-                            <h3 className="font-bold text-lg mb-4">Quick Tip</h3>
-                            <p className="text-indigo-100 text-sm leading-relaxed mb-6">Keep your warehouse locations organized to improve pick-up efficiency by up to 30%.</p>
+                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 text-white shadow-xl relative group">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-black text-xs uppercase tracking-widest text-indigo-100 flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-indigo-200 rounded-full animate-pulse"></div>
+                                    Admin Notes
+                                </h3>
+                                {user?.role === 'admin' && !isEditing && (
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        className="text-[10px] font-black uppercase tracking-tighter bg-white/20 hover:bg-white/40 px-3 py-1 rounded-full border border-white/20 transition-all"
+                                    >
+                                        Edit Note
+                                    </button>
+                                )}
+                            </div>
+
+                            {isEditing ? (
+                                <div className="space-y-4">
+                                    <textarea
+                                        value={editValue}
+                                        onChange={(e) => setEditValue(e.target.value)}
+                                        className="w-full bg-white/10 border border-white/20 rounded-2xl p-4 text-white placeholder-white/40 focus:bg-white/20 outline-none transition-all resize-none h-32 font-medium"
+                                        placeholder="Type administrative notes here..."
+                                    />
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleSaveNote}
+                                            className="flex-1 bg-white text-indigo-600 font-bold py-2 rounded-xl hover:bg-indigo-50 transition-all"
+                                        >
+                                            Save Changes
+                                        </button>
+                                        <button
+                                            onClick={() => { setIsEditing(false); setEditValue(note); }}
+                                            className="px-4 py-2 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all border border-white/20"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-white text-lg font-bold leading-relaxed mb-6 italic whitespace-pre-wrap">
+                                    "{note}"
+                                </p>
+                            )}
                             <div className="w-12 h-1 bg-white/30 rounded-full"></div>
                         </div>
+
                     </div>
                 </div>
             </main>

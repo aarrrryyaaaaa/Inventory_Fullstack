@@ -5,19 +5,20 @@ import { Plus, Trash2, Edit2, Search, ArrowDownCircle, ArrowUpCircle } from 'luc
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import Loading from '../components/Loading';
 
 const Inventory = () => {
-    // ... rest of component
     const { t } = useLanguage();
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { token, user } = useAuth();
+
+    const [editingId, setEditingId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showTxnModal, setShowTxnModal] = useState(false);
     const [formData, setFormData] = useState({ name: '', category: '', quantity: 0, location: '' });
     const [txnData, setTxnData] = useState({ product_id: '', type: 'IN', quantity: 0 });
-    const [editingId, setEditingId] = useState(null);
-    const { token, user } = useAuth();
 
     // Search and Filter States
     const [searchQuery, setSearchQuery] = useState('');
@@ -31,6 +32,10 @@ const Inventory = () => {
             fetchCategories();
         }
     }, [token, searchQuery, selectedCategory, currentPage]);
+
+    // Data fetching handled in useEffect below
+
+
 
     const fetchCategories = async () => {
         try {

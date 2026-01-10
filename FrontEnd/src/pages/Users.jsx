@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/api';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-import { Search, User, Shield, MapPin } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../components/Loading';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const { user } = useAuth(); // for auth check
+    const { user } = useAuth();
     const { t } = useLanguage();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Redirect if not admin (Client-side protection)
         if (user && user.role !== 'admin') {
             alert("Access Denied: Admins only.");
             navigate('/dashboard');
@@ -37,6 +37,9 @@ const Users = () => {
             setLoading(false);
         }
     };
+
+    // Data fetching handled in useEffect
+
 
     return (
         <div className="bg-gray-50 min-h-screen transition-colors">

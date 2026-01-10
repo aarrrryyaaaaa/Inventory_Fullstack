@@ -16,7 +16,9 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/transactions', require('./routes/transactionRoutes'));
+app.use('/api/settings', require('./routes/settingRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+
 
 app.get('/', (req, res) => {
     res.send('Inventory API is running...');

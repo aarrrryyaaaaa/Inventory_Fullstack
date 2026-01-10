@@ -5,12 +5,14 @@ import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { ChevronLeft, Box, Calendar, User, Tag } from 'lucide-react';
+import Loading from '../components/Loading';
 
 const Categories = () => {
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [products, setProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
+    const [loading, setLoading] = useState(true);
     const { token } = useAuth();
     const { t } = useLanguage();
 
@@ -24,8 +26,13 @@ const Categories = () => {
             setCategories(res.data);
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     };
+
+    // Data fetching handled in useEffect
+
 
     const handleCategoryClick = async (catName) => {
         setSelectedCategory(catName);

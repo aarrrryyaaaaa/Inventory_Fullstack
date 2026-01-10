@@ -30,9 +30,9 @@ const Sidebar = () => {
     return (
 
         <div className="w-64 bg-white h-screen fixed left-0 top-0 border-r border-gray-100 flex flex-col z-20 transition-colors duration-300">
-            <div className="p-6 flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
-                <div className="text-2xl font-bold text-indigo-900 tracking-tighter">ATS</div>
+            <div className="p-6 flex items-center">
+                <span className="text-3xl font-black text-indigo-950 tracking-tighter">ATS</span>
+                <span className="text-3xl font-black text-cyan-400 ml-0.5">.</span>
             </div>
 
             <div className="flex-1 py-4 flex flex-col gap-2">

@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api, { setAuthToken } from '../api/api';
 
+import Loading from '../components/Loading';
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -9,12 +11,35 @@ export const AuthProvider = ({ children }) => {
         return savedUser ? JSON.parse(savedUser) : null;
     });
     const [token, setToken] = useState(localStorage.getItem('token'));
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => {
+        const savedToken = localStorage.getItem('token');
+        const savedUser = localStorage.getItem('user_data');
+        return !(savedToken && savedUser);
+    });
 
     useEffect(() => {
         if (token) {
             setAuthToken(token);
             fetchProfile();
+
+            // Auto-logout logic based on JWT expiry
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const expiryTime = payload.exp * 1000;
+                const timeout = expiryTime - Date.now();
+
+                if (timeout <= 0) {
+                    logout();
+                } else {
+                    const timer = setTimeout(() => {
+                        logout();
+                        window.location.href = '/'; // Redirect to login
+                    }, timeout);
+                    return () => clearTimeout(timer);
+                }
+            } catch (e) {
+                console.error("Token parse error", e);
+            }
         } else {
             setAuthToken(null);
             setLoading(false);
@@ -49,7 +74,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout, loading }}>
-            {children}
+            {loading ? <Loading /> : children}
         </AuthContext.Provider>
     );
 };
