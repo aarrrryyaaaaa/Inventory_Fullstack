@@ -7,7 +7,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/$1"
+            "destination": "/FrontEnd/dist/$1"
         }
     ]
 }
