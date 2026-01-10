@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+body {
+  @apply bg-slate-50 text-gray-900;
+}
+
+/* Dark mode logic removed entirely */
