@@ -94,7 +94,7 @@ router.get('/profile', verifyToken, async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('users')
-            .select('id, username, full_name, role, first_name, last_name, age, address')
+            .select('id, username, full_name, role, first_name, last_name, age, address, profile_photo_url')
             .eq('id', req.userId)
             .single();
 
@@ -129,7 +129,7 @@ router.patch('/profile', verifyToken, async (req, res) => {
 });
 
 // UPDATE PASSWORD (Self)
-router.put('/change-password', verifyToken, async (req, res) => {
+router.patch('/change-password', verifyToken, async (req, res) => {
     const { newPassword } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -154,7 +154,7 @@ router.get('/all', verifyToken, checkRole('admin'), async (req, res) => {
     try {
         let query = supabase
             .from('users')
-            .select('id, username, full_name, role, age, address', { count: 'exact' });
+            .select('id, username, full_name, role, age, address, profile_photo_url, last_activity', { count: 'exact' });
 
         if (search) {
             query = query.ilike('username', `%${search}%`);
@@ -195,6 +195,109 @@ router.delete('/users/:id', verifyToken, checkRole('admin'), async (req, res) =>
 
         if (error) throw error;
         res.json({ message: 'User deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// UPLOAD PROFILE PHOTO
+const multer = require('multer');
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.'));
+        }
+    }
+});
+
+router.patch('/profile/photo', verifyToken, upload.single('photo'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No photo file provided' });
+    }
+
+    try {
+        const userId = req.userId;
+        const file = req.file;
+        const fileExt = file.originalname.split('.').pop();
+        const fileName = `${userId}_${Date.now()}.${fileExt}`;
+        const filePath = `profile-photos/${fileName}`;
+
+        // Get current user to check for old photo
+        const { data: userData } = await supabase
+            .from('users')
+            .select('profile_photo_url')
+            .eq('id', userId)
+            .single();
+
+        // Delete old photo if exists
+        try {
+            if (userData?.profile_photo_url) {
+                const oldPath = userData.profile_photo_url.split('/').pop();
+                if (oldPath) {
+                    await supabase.storage
+                        .from('profile-photos')
+                        .remove([`profile-photos/${oldPath}`]);
+                }
+            }
+        } catch (deleteErr) {
+            console.warn("Failed to delete old photo, continuing upload:", deleteErr.message);
+        }
+
+        // Upload new photo to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+            .from('profile-photos')
+            .upload(filePath, file.buffer, {
+                contentType: file.mimetype,
+                upsert: true
+            });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+            .from('profile-photos')
+            .getPublicUrl(filePath);
+
+        const photoUrl = urlData.publicUrl;
+
+        // Update user record
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ profile_photo_url: photoUrl })
+            .eq('id', userId);
+
+        if (updateError) throw updateError;
+
+        res.json({
+            message: 'Profile photo uploaded successfully',
+            profile_photo_url: photoUrl
+        });
+
+    } catch (err) {
+        console.error('Photo upload error FULL OBJECT:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET ONLINE USERS (last activity within 5 minutes)
+router.get('/online', verifyToken, async (req, res) => {
+    try {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, username, profile_photo_url, last_activity')
+            .gte('last_activity', fiveMinutesAgo.toISOString())
+            .order('last_activity', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(data);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

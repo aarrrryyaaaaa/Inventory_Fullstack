@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import Header from '../components/Header';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Package, Box, Sparkles, TrendingUp } from 'lucide-react';
 import Loading from '../components/Loading';
+import Layout from '../components/Layout';
 
 const Dashboard = () => {
     const { user, token } = useAuth();
@@ -57,14 +56,12 @@ const Dashboard = () => {
     if (loading) return <Loading />;
 
     return (
-        <div className="bg-gray-50 min-h-screen transition-colors">
-            <Sidebar />
-            <Header title={`${t('dashboard')} • ATS Corp`} />
-
-            <main className="pl-64 pt-20 p-8">
+        <Layout title={`${t('dashboard')} • ATS Corp`}>
+            {/* Main content - padding is handled by Layout now */}
+            <div className="">
                 {/* High-Impact 3D People Banner */}
-                <div className="bg-slate-900 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl mb-10 min-h-[380px] flex items-center border border-white/5">
-                    <div className="relative z-20 max-w-2xl bg-black/30 backdrop-blur-xl p-10 rounded-[2rem] border border-white/10 shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
+                <div className="bg-slate-900 rounded-[3rem] p-8 text-white relative overflow-hidden shadow-2xl mb-10 min-h-[300px] flex items-center border border-white/5">
+                    <div className="relative z-20 max-w-2xl bg-black/30 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 shadow-2xl transform hover:scale-[1.02] transition-transform duration-500">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
                             <h1 className="text-2xl font-black tracking-widest text-cyan-400 uppercase opacity-80">{t('welcome')}</h1>
@@ -135,7 +132,16 @@ const Dashboard = () => {
                                             </div>
                                             <div>
                                                 <h4 className="font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{txn.inventory?.name || 'Unknown Item'}</h4>
-                                                <p className="text-sm text-gray-500 font-medium">{txn.quantity} Units</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    {txn.users?.profile_photo_url ? (
+                                                        <img src={txn.users.profile_photo_url} alt={txn.users.username} className="w-5 h-5 rounded-full object-cover border border-gray-200" />
+                                                    ) : (
+                                                        <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                                                            {txn.users?.username?.charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                    <p className="text-sm text-gray-500 font-medium">{txn.users?.username} • {txn.quantity} Units</p>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -214,8 +220,8 @@ const Dashboard = () => {
 
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </Layout>
     );
 };
 

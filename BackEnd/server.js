@@ -18,6 +18,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/transactions', require('./routes/transactionRoutes'));
 app.use('/api/settings', require('./routes/settingRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
+app.use('/api/health', require('./routes/healthRoutes'));
+app.use('/api/reports', require('./routes/exportRoutes'));
 
 
 app.get('/', (req, res) => {

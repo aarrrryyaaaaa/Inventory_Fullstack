@@ -79,7 +79,7 @@ router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
 });
 
 // Update item (Admin Only)
-router.put('/:id', verifyToken, checkRole('admin'), async (req, res) => {
+router.patch('/:id', verifyToken, checkRole('admin'), async (req, res) => {
     const { id } = req.params;
     const { name, category, quantity, location } = req.body;
     try {

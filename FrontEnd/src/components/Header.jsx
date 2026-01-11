@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, User, ChevronDown } from 'lucide-react';
+import { Bell, User, ChevronDown, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
-const Header = ({ title }) => {
+const Header = ({ title, onMenuClick }) => {
     const { user } = useAuth();
     const { t } = useLanguage();
     const [showProfile, setShowProfile] = useState(false);
@@ -13,11 +13,19 @@ const Header = ({ title }) => {
     console.log('Header User:', user);
 
     return (
-        <div className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 py-4 fixed top-0 right-0 left-64 z-10 transition-colors duration-300">
-            <div>
-                <h1 className="text-xl font-bold text-gray-800 uppercase tracking-wide">ATS Corp</h1>
-                <div className="text-sm text-gray-400 font-medium flex gap-2">
-                    <span>{title}</span>
+        <div className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8 py-4 fixed top-0 right-0 left-0 lg:left-64 z-40 transition-all duration-300">
+            <div className="flex items-center gap-4">
+                <button
+                    onClick={onMenuClick}
+                    className="lg:hidden p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                >
+                    <Menu size={24} />
+                </button>
+                <div>
+                    <h1 className="text-xl font-bold text-gray-800 uppercase tracking-wide hidden sm:block">ATS Corp</h1>
+                    <div className="text-sm text-gray-400 font-medium flex gap-2">
+                        <span>{title}</span>
+                    </div>
                 </div>
             </div>
 
@@ -34,9 +42,13 @@ const Header = ({ title }) => {
                             onClick={() => setShowProfile(!showProfile)}
                             className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-xl transition-colors"
                         >
-                            <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold border border-indigo-200">
-                                {user?.username?.charAt(0).toUpperCase() || <User size={20} />}
-                            </div>
+                            {user?.profile_photo_url ? (
+                                <img src={user.profile_photo_url} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-indigo-200" />
+                            ) : (
+                                <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold border border-indigo-200">
+                                    {user?.username?.charAt(0).toUpperCase() || <User size={20} />}
+                                </div>
+                            )}
                             <div className="text-left hidden md:block">
                                 <p className="text-sm font-bold text-gray-700">{user?.full_name || 'Guest'}</p>
                                 <p className="text-xs text-gray-400 capitalize">{user?.role || 'Visitor'}</p>
@@ -47,9 +59,13 @@ const Header = ({ title }) => {
                         {showProfile && user && (
                             <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-50">
                                 <div className="flex flex-col items-center mb-4 pb-4 border-b border-gray-100">
-                                    <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-2xl mb-2">
-                                        {user?.username?.charAt(0).toUpperCase()}
-                                    </div>
+                                    {user?.profile_photo_url ? (
+                                        <img src={user.profile_photo_url} alt="Profile" className="w-16 h-16 rounded-full object-cover border-2 border-indigo-200" />
+                                    ) : (
+                                        <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold text-2xl mb-2">
+                                            {user?.username?.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
                                     <h3 className="font-bold text-lg">{user?.full_name}</h3>
                                     <span className="bg-blue-100 text-blue-600 text-xs font-bold px-2 py-1 rounded-full capitalize">{user?.role}</span>
                                 </div>

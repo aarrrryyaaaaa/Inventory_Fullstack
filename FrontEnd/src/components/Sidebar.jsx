@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Box, Tags, FileText, Moon, Sun, LogOut, Globe, Users } from 'lucide-react';
+import { LayoutDashboard, Box, Tags, FileText, Moon, Sun, LogOut, Globe, Users, ArrowLeftFromLine } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const { theme, toggleTheme } = useTheme();
     const { lang, toggleLang, t } = useLanguage();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [openSubmenu, setOpenSubmenu] = useState(null);
 
     const handleLogout = () => {
         logout();
         navigate('/');
+    };
+
+    const toggleSubmenu = (path) => {
+        setOpenSubmenu(openSubmenu === path ? null : path);
     };
 
     const menuItems = [
@@ -28,18 +33,34 @@ const Sidebar = () => {
     }
 
     return (
-
-        <div className="w-64 bg-white h-screen fixed left-0 top-0 border-r border-gray-100 flex flex-col z-20 transition-colors duration-300">
-            <div className="p-6 flex items-center">
-                <span className="text-3xl font-black text-indigo-950 tracking-tighter">ATS</span>
-                <span className="text-3xl font-black text-cyan-400 ml-0.5">.</span>
+        <div className={`
+            fixed top-0 left-0 h-screen bg-white border-r border-gray-100 flex flex-col z-50 transition-transform duration-300
+            w-64
+            ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 lg:shadow-none'}
+        `}>
+            {/* Header / Logo Area */}
+            <div className="p-6 flex items-center justify-between">
+                <div className="flex items-center">
+                    <span className="text-3xl font-black text-indigo-950 tracking-tighter">ATS</span>
+                    <span className="text-3xl font-black text-cyan-400 ml-0.5">.</span>
+                </div>
+                {/* Mobile Close Button */}
+                <button
+                    onClick={onClose}
+                    className="lg:hidden p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                >
+                    <ArrowLeftFromLine size={20} />
+                </button>
             </div>
 
-            <div className="flex-1 py-4 flex flex-col gap-2">
+            <div className="flex-1 py-4 flex flex-col gap-2 overflow-y-auto">
                 {menuItems.map((item) => (
                     <NavLink
                         key={item.path}
                         to={item.path}
+                        onClick={() => {
+                            if (window.innerWidth < 1024) onClose(); // Close on mobile navigation
+                        }}
                         className={({ isActive }) => `
                     flex items-center gap-3 px-6 py-3 mx-4 rounded-xl transition-all font-medium
                     ${isActive
@@ -62,8 +83,6 @@ const Sidebar = () => {
                     <Globe size={20} />
                     {lang === 'en' ? 'Bahasa Indonesia' : 'English'}
                 </button>
-
-                {/* Theme Toggle Removed */}
 
                 <button
                     onClick={handleLogout}

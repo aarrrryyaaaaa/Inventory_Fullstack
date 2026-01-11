@@ -15,7 +15,7 @@ router.get('/', verifyToken, async (req, res) => {
             .select(`
                 *,
                 inventory (name),
-                users (username)
+                users (username, profile_photo_url)
             `, { count: 'exact' })
             .order('timestamp', { ascending: false });
 

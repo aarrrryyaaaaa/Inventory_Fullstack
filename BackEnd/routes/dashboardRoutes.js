@@ -23,7 +23,7 @@ router.get('/stats', verifyToken, async (req, res) => {
         // 3. Recent Transactions
         const { data: recentActivity, error: activityError } = await supabase
             .from('transactions')
-            .select('*, inventory(name)')
+            .select('*, inventory(name), users(username, profile_photo_url)')
             .order('timestamp', { ascending: false })
             .limit(5);
 

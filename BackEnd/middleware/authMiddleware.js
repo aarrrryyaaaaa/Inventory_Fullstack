@@ -14,12 +14,25 @@ const verifyToken = (req, res, next) => {
         return res.status(403).json({ message: 'Malformed token' });
     }
 
-    jwt.verify(tokenString, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(tokenString, process.env.JWT_SECRET, async (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: 'Unauthorized: Invalid token' });
         }
         req.userId = decoded.id;
         req.userRole = decoded.role;
+
+        // Update last_activity for online status tracking
+        try {
+            const supabase = require('../config/supabaseClient');
+            await supabase
+                .from('users')
+                .update({ last_activity: new Date() })
+                .eq('id', decoded.id);
+        } catch (updateErr) {
+            // Silent fail - don't block request if activity update fails
+            console.error('Failed to update last_activity:', updateErr);
+        }
+
         next();
     });
 };
