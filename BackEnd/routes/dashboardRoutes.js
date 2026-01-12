@@ -25,7 +25,7 @@ router.get('/stats', verifyToken, async (req, res) => {
             .from('transactions')
             .select('*, inventory(name), users(username, profile_photo_url)')
             .order('timestamp', { ascending: false })
-            .limit(5);
+            .limit(50);
 
         if (activityError) throw activityError;
 

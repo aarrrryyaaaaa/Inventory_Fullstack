@@ -14,6 +14,7 @@ const Reports = () => {
     const { t } = useLanguage();
     const { token } = useAuth();
     const [stats, setStats] = useState({ totalItems: 0, lowStock: 0, recentActivity: [] });
+    const [transactions, setTransactions] = useState([]);
     const [categories, setCategories] = useState([]);
     const [systemHealth, setSystemHealth] = useState({ status: 'operational', uptime: 99.8, database: 'connected', responseTime: 0 });
     const [loading, setLoading] = useState(true);
@@ -21,13 +22,16 @@ const Reports = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsRes, catsRes, healthRes] = await Promise.all([
+                const [statsRes, catsRes, healthRes, transRes] = await Promise.all([
                     api.get('/dashboard/stats'),
                     api.get('/inventory/categories'),
-                    api.get('/health')
+                    api.get('/health'),
+                    api.get('/transactions?limit=1000')
                 ]);
                 setStats(statsRes.data);
                 setCategories(catsRes.data);
+                setTransactions(transRes.data.data);
+
                 setSystemHealth(healthRes.data);
             } catch (err) {
                 console.error(err);
@@ -59,8 +63,8 @@ const Reports = () => {
 
     const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4'];
 
-    // Prepare data for Line Chart (Simplified from recentActivity)
-    const lineData = Array.isArray(stats.recentActivity) ? stats.recentActivity.slice(0, 7).reverse().map(act => ({
+    // Prepare data for Line Chart (from full transactions)
+    const lineData = Array.isArray(transactions) ? transactions.slice(0, 50).reverse().map(act => ({
         name: act.timestamp ? new Date(act.timestamp).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : 'N/A',
         qty: act.quantity
     })) : [];
@@ -258,10 +262,10 @@ const Reports = () => {
                         <p className="text-slate-400 font-medium">Full historical log of stock movement and user signatures.</p>
                     </div>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="text-left text-xs font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">
+                <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+                    <table className="w-full relative">
+                        <thead className="sticky top-0 z-10">
+                            <tr className="text-left text-xs font-black text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-100">
                                 <th className="py-5 px-8">Transaction Details</th>
                                 <th className="py-5 px-8 text-center">Type</th>
                                 <th className="py-5 px-8 text-right">Magnitude</th>
@@ -269,7 +273,7 @@ const Reports = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {stats.recentActivity?.map((act) => (
+                            {transactions?.map((act) => (
                                 <tr key={act.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="py-6 px-8">
                                         <div className="flex items-center gap-4">

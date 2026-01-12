@@ -123,7 +123,7 @@ const Dashboard = () => {
                         {/* Recent Activity */}
                         <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
                             <h3 className="text-xl font-bold text-gray-800 mb-6">{t('recent_activity')}</h3>
-                            <div className="space-y-4">
+                            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                 {activityList.map((txn, i) => (
                                     <div key={txn.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-all border border-transparent hover:border-indigo-100 group">
                                         <div className="flex items-center gap-4">
