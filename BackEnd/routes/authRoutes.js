@@ -3,7 +3,22 @@ const supabase = require('../config/supabaseClient');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs'); // Assuming we will hash eventually, but requirement says "plaintext" in prev code. Let's stick to plaintext for now unless strictly required, but exam usually wants hash. I'll code hashing for strictness.
 const { verifyToken, checkRole } = require('../middleware/authMiddleware');
+const multer = require('multer');
 const router = express.Router();
+
+// MULTER CONFIG
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.'));
+        }
+    }
+});
 
 // HELPER: Get Secret Key from env
 const ADMIN_KEY = process.env.SECRET_KEY_ADMIN;
@@ -201,20 +216,6 @@ router.delete('/users/:id', verifyToken, checkRole('admin'), async (req, res) =>
 });
 
 // UPLOAD PROFILE PHOTO
-const multer = require('multer');
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.'));
-        }
-    }
-});
-
 router.patch('/profile/photo', verifyToken, upload.single('photo'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No photo file provided' });
